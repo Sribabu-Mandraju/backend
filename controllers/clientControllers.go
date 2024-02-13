@@ -227,5 +227,143 @@ func SendRequest() gin.HandlerFunc {
 	}
 }
 
+func UploadPdf() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		fmt.Println("UploadPdf handler function called")
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		// Parse form
+		fmt.Println("Parsing form...")
+		err := c.Request.ParseMultipartForm(10 << 20) // 10 MB max
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			fmt.Println("Error parsing form:", err.Error())
+			return
+		}
+
+		// Get the PDF file from the request
+		fmt.Println("Getting PDF file from request...")
+		file, _, err := c.Request.FormFile("pdf_file")
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "PDF file not found in request",
+			})
+			fmt.Println("PDF file not found in request")
+			return
+		}
+		defer file.Close()
+
+		// Read the file content
+		fmt.Println("Reading PDF file content...")
+		fileBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "failed to read PDF file",
+			})
+			fmt.Println("Failed to read PDF file:", err.Error())
+			return
+		}
+
+		// Get other fields from the request
+		title := c.Request.FormValue("title")
+		userEmail := c.Request.FormValue("user_email")
+
+		// Generate a new unique ObjectID
+		id := primitive.NewObjectID()
+
+		// Create PDFUploads struct
+		pdfUpload := models.PDFUploads{
+			ID:        id,
+			Title:     title,
+			UserEmail: userEmail,
+			PDFFile:   fileBytes,
+		}
+
+		// Validate PDFUploads struct
+		fmt.Println("Validating PDFUploads struct...")
+		validationErr := validateClient.Struct(pdfUpload)
+		if validationErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": validationErr.Error(),
+			})
+			fmt.Println("Validation error:", validationErr.Error())
+			return
+		}
+
+		// Insert PDFUploads data into the MongoDB collection
+		fmt.Println("Inserting PDFUploads data into MongoDB collection...")
+		result, err := pdfUploadsCollection.InsertOne(ctx, pdfUpload)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			fmt.Println("Error inserting data into MongoDB collection:", err.Error())
+			return
+		}
+
+		// Respond with success message and inserted data
+		fmt.Println("PDF uploaded successfully")
+		c.JSON(http.StatusOK, gin.H{
+			"msg":    "PDF uploaded successfully",
+			"data":   pdfUpload,
+			"status": result,
+		})
+	}
+}
+
+
+func GetPdfDetailsByUserEmail() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        // Parse the JSON request body
+        var requestBody map[string]string
+        if err := c.BindJSON(&requestBody); err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+            return
+        }
+
+        // Retrieve the user email from the request body
+        userEmail, ok := requestBody["useremail"]
+        if !ok || userEmail == "" {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "User email is required"})
+            return
+        }
+
+        // Retrieve the PDF details from the database based on the user email
+        pdfDetails, err := GetPdfDetailsByUserEmailFromDatabase(userEmail)
+        if err != nil {
+            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve PDF details"})
+            return
+        }
+
+        // Set response headers
+        c.Header("Content-Type", "application/json")
+
+        // Send the PDF details as the response
+        c.JSON(http.StatusOK, pdfDetails)
+    }
+}
+
+func GetPdfDetailsByUserEmailFromDatabase(userEmail string) ([]bson.M, error) {
+    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+    defer cancel()
+
+    cursor, err := pdfUploadsCollection.Find(ctx, bson.M{"useremail": userEmail})
+    if err != nil {
+        return nil, err
+    }
+    defer cursor.Close(ctx)
+
+    var pdfDetails []bson.M
+    err = cursor.All(ctx, &pdfDetails)
+    if err != nil {
+        return nil, err
+    }
+
+    return pdfDetails, nil
+}
 
 
