@@ -18,3 +18,8 @@ func UserRoutes(incomingRoutes *gin.Engine){
 	incomingRoutes.GET("/admin/client/all-clients", controllers.GetAllClients())
 	incomingRoutes.GET("/admin/client/:id",controllers.GetClientByID())
 }
+
+func ClientRoutes(incomingRoutes *gin.Engine) {
+	incomingRoutes.POST("/client/uploadPdf", controllers.UploadPdf())
+	incomingRoutes.POST("/client/getPdfByEmail",controllers.GetPdfDetailsByUserEmail())
+}

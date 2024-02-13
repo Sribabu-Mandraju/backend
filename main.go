@@ -24,14 +24,17 @@ func main() {
 	client = database.DBinstance()
 	defer client.Disconnect(context.Background())
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:5173"} // Add your React app's origin
+	config.AllowOrigins = []string{"*"} // Add your React app's origin
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
 	config.AllowHeaders = []string{"Authorization", "Content-Type"}
 	router.Use(cors.New(config))
 
+	routes.ClientRoutes(router) //
+
 	routes.AuthRoutes(router)
 	routes.ClientAuthRoutes(router)
 	routes.UserRoutes(router)
+
 	router.Use(gin.Logger())
 
 
