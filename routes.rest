@@ -15,8 +15,8 @@ POST http://localhost:8080/admin/login
 Content-Type: application/json
 
  {
-    "Email":"sribabum2andraju@gmail.com",
-    "Password":"63037s22ribabu"
+    "Email":"sribabumandraju@gmail.com",
+    "Password":"63037sribabu"
  }
 
  # Headers
@@ -53,7 +53,7 @@ Authorization: HELLO_WORLD
 ###
 GET http://localhost:8080/admin/allAdmins
 Content-Type: application/json
-Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtMmFuZHJhanVAZ21haWwuY29tIiwiTmFtZSI6InNyaWJhYjJ1IiwiQ29udGFjdCI6IjYzMHMzNzIzODg0NyIsIlBhc3N3b3JkIjoiIiwiQ29tcGFueSI6ImFtYXMyem9uIiwiVXNlcl9pZCI6IjY1YzBjNTQ0ZWYzYTFiNDAxMmM1Zjg4OSIsImV4cCI6MTcwNzMwOTY2NH0.Ut7s2Xu_GfmncJfJQagnJcJYmu3-RcKpmlmIrpNnuPE
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODI0MTE5N30.WQXeVejWscH0hOkPt4PIJW12ADXVVYWHp9sglRsBVCE
 
 
 ###

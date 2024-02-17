@@ -3,22 +3,25 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
-	"github.com/go-playground/validator/v10"
-	"backend/models"
 	"backend/database"
 	helper "backend/helpers"
+	"backend/models"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var clientCollection *mongo.Collection = database.OpenCollection(database.Client, "clients")
+var pdfUploadsCollection *mongo.Collection = database.OpenCollection(database.Client, "pdfUploads")
 var validateClient = validator.New()
 
 func HashPasswordClient(password string) string {
@@ -38,7 +41,6 @@ func VerifyPasswordClient(userPassword string, providedPassword string) (bool, s
 	}
 	return check, msg
 }
-
 
 func ClientRegister() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -130,8 +132,6 @@ func ClientRegister() gin.HandlerFunc {
 	}
 }
 
-
-
 func ClientLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -220,9 +220,9 @@ func SendRequest() gin.HandlerFunc {
 
 		// Respond with success message and inserted data
 		c.JSON(http.StatusOK, gin.H{
-			"msg":  "successfully request sent",
-			"data": request,
-			"status":result,
+			"msg":    "successfully request sent",
+			"data":   request,
+			"status": result,
 		})
 	}
 }
@@ -315,55 +315,52 @@ func UploadPdf() gin.HandlerFunc {
 	}
 }
 
-
 func GetPdfDetailsByUserEmail() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        // Parse the JSON request body
-        var requestBody map[string]string
-        if err := c.BindJSON(&requestBody); err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-            return
-        }
+	return func(c *gin.Context) {
+		// Parse the JSON request body
+		var requestBody map[string]string
+		if err := c.BindJSON(&requestBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+			return
+		}
 
-        // Retrieve the user email from the request body
-        userEmail, ok := requestBody["useremail"]
-        if !ok || userEmail == "" {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "User email is required"})
-            return
-        }
+		// Retrieve the user email from the request body
+		userEmail, ok := requestBody["useremail"]
+		if !ok || userEmail == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "User email is required"})
+			return
+		}
 
-        // Retrieve the PDF details from the database based on the user email
-        pdfDetails, err := GetPdfDetailsByUserEmailFromDatabase(userEmail)
-        if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve PDF details"})
-            return
-        }
+		// Retrieve the PDF details from the database based on the user email
+		pdfDetails, err := GetPdfDetailsByUserEmailFromDatabase(userEmail)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve PDF details"})
+			return
+		}
 
-        // Set response headers
-        c.Header("Content-Type", "application/json")
+		// Set response headers
+		c.Header("Content-Type", "application/json")
 
-        // Send the PDF details as the response
-        c.JSON(http.StatusOK, pdfDetails)
-    }
+		// Send the PDF details as the response
+		c.JSON(http.StatusOK, pdfDetails)
+	}
 }
 
 func GetPdfDetailsByUserEmailFromDatabase(userEmail string) ([]bson.M, error) {
-    ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-    cursor, err := pdfUploadsCollection.Find(ctx, bson.M{"useremail": userEmail})
-    if err != nil {
-        return nil, err
-    }
-    defer cursor.Close(ctx)
+	cursor, err := pdfUploadsCollection.Find(ctx, bson.M{"useremail": userEmail})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
 
-    var pdfDetails []bson.M
-    err = cursor.All(ctx, &pdfDetails)
-    if err != nil {
-        return nil, err
-    }
+	var pdfDetails []bson.M
+	err = cursor.All(ctx, &pdfDetails)
+	if err != nil {
+		return nil, err
+	}
 
-    return pdfDetails, nil
+	return pdfDetails, nil
 }
-
-

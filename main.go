@@ -30,6 +30,7 @@ func main() {
 	router.Use(cors.New(config))
 
 	routes.ClientRoutes(router) //
+	routes.JobListingRoutes(router)
 
 	routes.AuthRoutes(router)
 	routes.ClientAuthRoutes(router)
