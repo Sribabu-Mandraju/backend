@@ -1,23 +1,21 @@
 package main
 
 import (
+	"backend/database"
+	routes "backend/routes"
 	"context"
 	"os"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
-	"backend/database"
-	"github.com/gin-contrib/cors"
-	routes "backend/routes"
 )
 
 var client *mongo.Client
 
-
-func mongoFun(c *gin.Context){
-	c.String(200,"hello")
+func mongoFun(c *gin.Context) {
+	c.String(200, "hello")
 }
-
-
 
 func main() {
 	router := gin.Default()
@@ -30,13 +28,13 @@ func main() {
 	router.Use(cors.New(config))
 
 	routes.ClientRoutes(router) //
+	// routes.JobListingRoutes(router)
 
 	routes.AuthRoutes(router)
 	routes.ClientAuthRoutes(router)
 	routes.UserRoutes(router)
 
 	router.Use(gin.Logger())
-
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -53,9 +51,8 @@ func main() {
 // 	"modfile/handlers"
 // 	"modfile/db"
 // 	"github.com/gin-contrib/cors"
-// )	
+// )
 // var client *mongo.Client
-
 
 // func main(){
 // 	db.Init()

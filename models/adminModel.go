@@ -46,3 +46,14 @@ type PDFUploads struct {
 	UserEmail string             `json:"user_email" validate:"required"`
 	PDFFile   []byte             `json:"pdf_file" validate:"required"`
 }
+
+type JobListing struct {
+	ID           primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Role         string             `json:"role" bson:"role"`
+	Location     string             `json:"location" bson:"location"`
+	Company      string             `json:"company" bson:"company"`
+	Description  string             `json:"desc" bson:"desc"`
+	Requirements []string           `json:"requirements" bson:"requirements"`
+	Link         string             `json:"link" bson:"link"`
+	Active       bool               `json:"active" bson:"active"`
+}
