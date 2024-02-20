@@ -78,48 +78,48 @@ func GetAllJobListings() gin.HandlerFunc {
 	}
 }
 
-func GetJobListingById() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+// func GetJobListingById() gin.HandlerFunc {
+// 	return func(ctx *gin.Context) {
 
-		var requestBody map[string]string
-		if err := ctx.BindJSON(&requestBody); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
-			return
-		}
-		//retrive id from the request body
-		id, ok := requestBody["id"]
-		if !ok || id == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "Id id required",
-			})
-			return
-		}
-		//convert the string toObjectID
-		objId, err := primitive.ObjectIDFromHex(id)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job listing id"})
-			return
-		}
+// 		var requestBody map[string]string
+// 		if err := ctx.BindJSON(&requestBody); err != nil {
+// 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+// 			return
+// 		}
+// 		//retrive id from the request body
+// 		id, ok := requestBody["id"]
+// 		if !ok || id == "" {
+// 			ctx.JSON(http.StatusBadRequest, gin.H{
+// 				"error": "Id id required",
+// 			})
+// 			return
+// 		}
+// 		//convert the string toObjectID
+// 		objId, err := primitive.ObjectIDFromHex(id)
+// 		if err != nil {
+// 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid job listing id"})
+// 			return
+// 		}
 
-		//find the job listing with the given id
-		var jobListing models.JobListing
-		err = jobListingCollection.FindOne(context.Background(), bson.M{"_id": objId}).Decode(&jobListing)
-		if err != nil {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error": "Job listing not found",
-			})
-			return
-		}
+// 		//find the job listing with the given id
+// 		var jobListing models.JobListing
+// 		err = jobListingCollection.FindOne(context.Background(), bson.M{"_id": objId}).Decode(&jobListing)
+// 		if err != nil {
+// 			ctx.JSON(http.StatusNotFound, gin.H{
+// 				"error": "Job listing not found",
+// 			})
+// 			return
+// 		}
 
-		//return the job listing with status ok
-		ctx.JSON(http.StatusOK, gin.H{
-			"jobListing": jobListing,
-		})
+// 		//return the job listing with status ok
+// 		ctx.JSON(http.StatusOK, gin.H{
+// 			"jobListing": jobListing,
+// 		})
 
-	}
-}
+// 	}
+// }
 
-func GetJobListingById1() gin.HandlerFunc {
+func GetJobListingByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		fmt.Println("inside the function")
 		// Retrieve the ID from the URL parameters
@@ -151,42 +151,28 @@ func GetJobListingById1() gin.HandlerFunc {
 
 func UpdateJobListingByID() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var requestBody map[string]string
-		if err := ctx.BindJSON(&requestBody); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "Invalid request body",
-			})
+		// Retrieve the ID from the URL parameters
+		id := ctx.Param("id")
+		if id == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
 			return
 		}
 
-		//retrive the id from the request body
-		id, ok := requestBody["id"]
-		if !ok || id == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "Id is required",
-			})
-			return
-		}
-
-		//convert the id string to primitive.ObjectID
-		objId, err := primitive.ObjectIDFromHex(id)
+		// Convert the ID string to primitive.ObjectID
+		objID, err := primitive.ObjectIDFromHex(id)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "invalid id format",
-			})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
 			return
 		}
 
-		//parse the json request body into a joblisting struct
+		// Parse the JSON request body into a job listing struct
 		var updateData models.JobListing
 		if err := ctx.BindJSON(&updateData); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "invalid update data",
-			})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid update data"})
 			return
 		}
 
-		//prepare update document
+		// Prepare update document
 		update := bson.M{}
 		if updateData.Role != "" {
 			update["role"] = updateData.Role
@@ -208,67 +194,88 @@ func UpdateJobListingByID() gin.HandlerFunc {
 		}
 		update["active"] = updateData.Active
 
-		//perform the update operation
+		// Perform the update operation
 		_, err = jobListingCollection.UpdateOne(
 			context.Background(),
-			bson.M{"_id": objId},
+			bson.M{"_id": objID},
 			bson.M{"$set": update},
 		)
 
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"error": "failed to update job listing",
-			})
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update job listing"})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"message":    "job listing updated successfully",
-			"jobListing": updateData,
-		})
-
+		ctx.JSON(http.StatusOK, gin.H{"message": "Job listing updated successfully", "jobListing": updateData})
 	}
 }
 
-func DeleteJobListing() gin.HandlerFunc {
+// func DeleteJobListing() gin.HandlerFunc {
+// 	return func(ctx *gin.Context) {
+// 		//parse the json request into map
+// 		var requestBody map[string]string
+// 		if err := ctx.BindJSON(&requestBody); err != nil {
+// 			ctx.JSON(http.StatusBadRequest, gin.H{
+// 				"error": "invalid request body",
+// 			})
+// 			return
+// 		}
+
+// 		//retrive the id from the request body
+// 		id, ok := requestBody["id"]
+// 		if !ok || id == "" {
+// 			ctx.JSON(http.StatusBadRequest, gin.H{
+// 				"error": "id is required",
+// 			})
+// 			return
+// 		}
+
+// 		//convert the id string to primitive.ObjectID
+// 		objId, err := primitive.ObjectIDFromHex(id)
+// 		if err != nil {
+// 			ctx.JSON(http.StatusBadRequest, gin.H{
+// 				"error": "invalid id format",
+// 			})
+// 		}
+
+// 		//delete the job listing with given id
+// 		_, err = jobListingCollection.DeleteOne(context.Background(), bson.M{"_id": objId})
+// 		if err != nil {
+// 			ctx.JSON(http.StatusInternalServerError, gin.H{
+// 				"error": "failed to delete the job listing",
+// 			})
+// 			return
+// 		}
+
+// 		ctx.JSON(http.StatusOK, gin.H{
+// 			"message": "job listing deleted successfully!",
+// 		})
+// 	}
+// }
+
+func DeleteJobListingById() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		//parse the json request into map
-		var requestBody map[string]string
-		if err := ctx.BindJSON(&requestBody); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "invalid request body",
-			})
+		// Retrieve the ID from the URL parameters
+		id := ctx.Param("id")
+		if id == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
 			return
 		}
 
-		//retrive the id from the request body
-		id, ok := requestBody["id"]
-		if !ok || id == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "id is required",
-			})
-			return
-		}
-
-		//convert the id string to primitive.ObjectID
+		// Convert the ID string to primitive.ObjectID
 		objId, err := primitive.ObjectIDFromHex(id)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"error": "invalid id format",
-			})
-		}
-
-		//delete the job listing with given id
-		_, err = jobListingCollection.DeleteOne(context.Background(), bson.M{"_id": objId})
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"error": "failed to delete the job listing",
-			})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
 			return
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "job listing deleted successfully!",
-		})
+		// Delete the job listing with the given ID
+		_, err = jobListingCollection.DeleteOne(context.Background(), bson.M{"_id": objId})
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete the job listing"})
+			return
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"message": "Job listing deleted successfully"})
 	}
 }

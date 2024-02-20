@@ -18,7 +18,13 @@ func UserRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/admin/adminByID/:id", controllers.GetAdminByID())
 	incomingRoutes.GET("/admin/client/all-clients", controllers.GetAllClients())
 	incomingRoutes.GET("/admin/client/:id", controllers.GetClientByID())
-	incomingRoutes.GET("/admin/jobListing/getJobListingById1/:id", controllers.GetJobListingById1())
+
+	//routes for  job listings
+	incomingRoutes.GET("/admin/jobListing/getJobListingById/:id", controllers.GetJobListingByID())
+	incomingRoutes.GET("/admin/jobListing/getAllJobListings", controllers.GetAllJobListings())
+	incomingRoutes.POST("/admin/jobListing/createJobListing", controllers.CreateJobListing())
+	incomingRoutes.PATCH("/admin/jobListing/updateJobListing/:id", controllers.UpdateJobListingByID())
+	incomingRoutes.DELETE("/admin/jobListing/deleteJobListing/:id", controllers.DeleteJobListingById())
 }
 
 func ClientRoutes(incomingRoutes *gin.Engine) {
@@ -26,11 +32,11 @@ func ClientRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.POST("/client/getPdfByEmail", controllers.GetPdfDetailsByUserEmail())
 }
 
-func JobListingRoutes(incomingRoutes *gin.Engine) {
-	incomingRoutes.GET("/jobListings/getTest", controllers.GetTest())
-	incomingRoutes.POST("/jobListings/createJobListing", controllers.CreateJobListing())
-	incomingRoutes.GET("/jobListings/getAllJobListings", controllers.GetAllJobListings())
-	incomingRoutes.GET("/jobListings/getJobListingById", controllers.GetJobListingById())
-	incomingRoutes.POST("/jobListings/updateJobListing", controllers.UpdateJobListingByID())
-	incomingRoutes.POST("/jobListings/deleteJobListing", controllers.DeleteJobListing())
-}
+// func JobListingRoutes(incomingRoutes *gin.Engine) {
+// 	incomingRoutes.GET("/jobListings/getTest", controllers.GetTest())
+// 	incomingRoutes.POST("/jobListings/createJobListing", controllers.CreateJobListing())
+// 	incomingRoutes.GET("/jobListings/getAllJobListings", controllers.GetAllJobListings())
+// 	incomingRoutes.GET("/jobListings/getJobListingById", controllers.GetJobListingById())
+// 	incomingRoutes.POST("/jobListings/updateJobListing", controllers.UpdateJobListingByID())
+// 	incomingRoutes.POST("/jobListings/deleteJobListing", controllers.DeleteJobListing())
+// }
