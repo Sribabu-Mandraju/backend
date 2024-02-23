@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"net/smtp"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -17,6 +18,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"github.com/dgrijalva/jwt-go"
+	"go.mongodb.org/mongo-driver/mongo/options"
 
 )
 
@@ -195,6 +197,86 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+func UpdateUserDetails() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		var user models.User
+
+		if err := c.BindJSON(&user); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		// Validate the user input
+		validationErr := validate.Struct(user)
+		if validationErr != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": validationErr.Error(),
+			})
+			return
+		}
+
+		// Find the user by ID
+		userID := c.Param("id") // Assuming the user ID is passed as a URL parameter
+		objID, err := primitive.ObjectIDFromHex(userID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Invalid user ID",
+			})
+			return
+		}
+
+		filter := bson.M{"_id": objID}
+		update := bson.M{
+			"$set": bson.M{
+				"name":    user.Name,
+				"email":   user.Email,
+				"contact": user.Contact,
+				// Add more fields to update as needed
+			},
+		}
+
+		// Update the user details in the database
+		result, err := userCollection.UpdateOne(ctx, filter, update)
+		if err != nil {
+			log.Panic(err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Error occurred while updating user details",
+			})
+			return
+		}
+
+		// Check if any user document was updated
+		if result.ModifiedCount == 0 {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "User not found",
+			})
+			return
+		}
+
+		defer cancel()
+
+		// Fetch the updated user details from the database
+		var updatedUser models.User
+		err = userCollection.FindOne(ctx, filter).Decode(&updatedUser)
+		if err != nil {
+			log.Panic(err)
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": "Error occurred while fetching updated user details",
+			})
+			return
+		}
+
+		// Return the updated user details in the response
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User details updated successfully",
+			"user":    updatedUser,
+		})
+	}
+}
+
 func GetAllAdmins() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.TODO()
@@ -291,7 +373,7 @@ func GetAllRequests() gin.HandlerFunc {
     return func(c *gin.Context) {
         // Fetch all request elements from the database
         var requests []models.Request_to_admin
-        cursor, err := requestCollection.Find(context.Background(), bson.M{})
+        cursor, err := requestCollection.Find(context.Background(), bson.M{}, options.Find().SetSort(bson.D{{"sended_at", -1}})) // Sorting by sended_at in ascending order
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{
                 "error": "failed to fetch requests",
@@ -404,5 +486,51 @@ func GetClientByID() gin.HandlerFunc {
 		c.JSON(http.StatusOK, user)
 	}
 }
+
+func SendEmailHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		clientEmail := c.PostForm("email")
+		subject := c.PostForm("subject")
+	
+		err := sendEmail(clientEmail, subject)
+		if err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+	
+		c.JSON(200, gin.H{"message": "Email sent successfully"})
+	}
+}
+
+func sendEmail(to, subject string) error {
+	// Sender email configuration
+	from := "sribabumandraju@gmail.com"
+	password := "63037sribabu" 
+	smtpHost := "smtp.gmail.com"   
+	smtpPort := "587"                  
+
+	// Message body
+	body := "This is the body of your email."
+
+	// Message
+	message := []byte("To: " + to + "\r\n" +
+		"Subject: " + subject + "\r\n" +
+		"\r\n" +
+		body + "\r\n")
+
+	// Authentication
+	auth := smtp.PlainAuth("", from, password, smtpHost)
+
+	// Sending email
+	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, []string{to}, message)
+	if err != nil {
+		fmt.Println("Error sending email:", err)
+		return err
+	}
+
+	fmt.Println("Email sent successfully to", to)
+	return nil
+}
+
 
 

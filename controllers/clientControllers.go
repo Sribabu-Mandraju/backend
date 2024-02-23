@@ -3,22 +3,27 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
-	"github.com/go-playground/validator/v10"
-	"backend/models"
 	"backend/database"
 	helper "backend/helpers"
+	"backend/models"
+	// "encoding/base64"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var clientCollection *mongo.Collection = database.OpenCollection(database.Client, "clients")
+var pdfUploadsCollection *mongo.Collection = database.OpenCollection(database.Client, "pdfUploads")
+
 var validateClient = validator.New()
 
 func HashPasswordClient(password string) string {
@@ -39,10 +44,10 @@ func VerifyPasswordClient(userPassword string, providedPassword string) (bool, s
 	return check, msg
 }
 
-
 func ClientRegister() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
 		var client models.Client
 
 		if err := c.BindJSON(&client); err != nil {
@@ -130,11 +135,10 @@ func ClientRegister() gin.HandlerFunc {
 	}
 }
 
-
-
 func ClientLogin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
 		var client models.Client
 		var foundClient models.Client
 
@@ -220,9 +224,9 @@ func SendRequest() gin.HandlerFunc {
 
 		// Respond with success message and inserted data
 		c.JSON(http.StatusOK, gin.H{
-			"msg":  "successfully request sent",
-			"data": request,
-			"status":result,
+			"msg":    "successfully request sent",
+			"data":   request,
+			"status": result,
 		})
 	}
 }
@@ -239,7 +243,7 @@ func UploadPdf() gin.HandlerFunc {
 		err := c.Request.ParseMultipartForm(10 << 20) // 10 MB max
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": err.Error(),
+				"error": "Failed to parse form",
 			})
 			fmt.Println("Error parsing form:", err.Error())
 			return
@@ -262,7 +266,7 @@ func UploadPdf() gin.HandlerFunc {
 		fileBytes, err := ioutil.ReadAll(file)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "failed to read PDF file",
+				"error": "Failed to read PDF file",
 			})
 			fmt.Println("Failed to read PDF file:", err.Error())
 			return
@@ -272,10 +276,8 @@ func UploadPdf() gin.HandlerFunc {
 		title := c.Request.FormValue("title")
 		userEmail := c.Request.FormValue("user_email")
 
-		// Generate a new unique ObjectID
 		id := primitive.NewObjectID()
 
-		// Create PDFUploads struct
 		pdfUpload := models.PDFUploads{
 			ID:        id,
 			Title:     title,
@@ -283,29 +285,25 @@ func UploadPdf() gin.HandlerFunc {
 			PDFFile:   fileBytes,
 		}
 
-		// Validate PDFUploads struct
 		fmt.Println("Validating PDFUploads struct...")
-		validationErr := validateClient.Struct(pdfUpload)
-		if validationErr != nil {
+		if err := validateClient.Struct(pdfUpload); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": validationErr.Error(),
+				"error": "Validation error",
 			})
-			fmt.Println("Validation error:", validationErr.Error())
+			fmt.Println("Validation error:", err.Error())
 			return
 		}
 
-		// Insert PDFUploads data into the MongoDB collection
 		fmt.Println("Inserting PDFUploads data into MongoDB collection...")
 		result, err := pdfUploadsCollection.InsertOne(ctx, pdfUpload)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": err.Error(),
+				"error": "Failed to insert data into MongoDB collection",
 			})
 			fmt.Println("Error inserting data into MongoDB collection:", err.Error())
 			return
 		}
 
-		// Respond with success message and inserted data
 		fmt.Println("PDF uploaded successfully")
 		c.JSON(http.StatusOK, gin.H{
 			"msg":    "PDF uploaded successfully",
@@ -314,6 +312,10 @@ func UploadPdf() gin.HandlerFunc {
 		})
 	}
 }
+
+
+
+
 
 
 func GetPdfDetailsByUserEmail() gin.HandlerFunc {
@@ -364,6 +366,87 @@ func GetPdfDetailsByUserEmailFromDatabase(userEmail string) ([]bson.M, error) {
     }
 
     return pdfDetails, nil
+}
+
+// func GetAllPDFs() gin.HandlerFunc {
+//     return func(c *gin.Context) {
+//         ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+//         defer cancel()
+
+//         cursor, err := pdfUploadsCollection.Find(ctx, bson.M{})
+//         if err != nil {
+//             c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve PDFs"})
+//             return
+//         }
+//         defer cursor.Close(ctx)
+
+//         var pdfs []models.PDFUploads
+//         if err := cursor.All(ctx, &pdfs); err != nil {
+//             c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode PDFs"})
+//             return
+//         }
+
+//         // Send the PDFs as the response
+//         c.JSON(http.StatusOK, gin.H{"pdfs": pdfs})
+//     }
+// }
+
+
+func GetAllPdfDetails() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		pdfDetails, err := GetAllPdfDetailsFromDatabase()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve PDF details"})
+			return
+		}
+
+		// Set response headers
+		c.Header("Content-Type", "application/json")
+
+		// Send the PDF details as the response
+		c.JSON(http.StatusOK, pdfDetails)
+	}
+}
+
+func GetAllPdfDetailsFromDatabase() ([]models.PDFUploads, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+	defer cancel()
+
+	cursor, err := pdfUploadsCollection.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var pdfDetails []models.PDFUploads
+	err = cursor.All(ctx, &pdfDetails)
+	if err != nil {
+		return nil, err
+	}
+
+	return pdfDetails,nil
+}
+func FetchFileById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+	
+		requestIDParam := c.Param("id")
+		requestID, err := primitive.ObjectIDFromHex(requestIDParam)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+			return
+		}
+	
+		var request bson.M
+		err = pdfUploadsCollection.FindOne(ctx, bson.M{"_id": requestID}).Decode(&request)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+	
+		c.JSON(http.StatusOK, request)
+	}
 }
 
 

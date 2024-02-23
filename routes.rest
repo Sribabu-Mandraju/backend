@@ -15,9 +15,11 @@ POST http://localhost:8080/admin/login
 Content-Type: application/json
 
  {
-    "Email":"sribabum2andraju@gmail.com",
-    "Password":"63037s22ribabu"
+    "Email":"sribabumandraju@gmail.com",
+    "Password":"63037sribabu"
  }
+
+ ### 
 
  # Headers
 Authorization: HELLO_WORLD
@@ -32,6 +34,16 @@ Content-Type: application/json
     "Company": "ABCDESF Corp",
     "Password": "secresstpassword2",
     "Contact": "12345s678902"
+}
+
+###
+POST http://localhost:8080/admin/send-email
+Content-Type: application/json
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODE3NTg2MX0.C-CbuCQH7-nsNdht8cA7yi_5pxixV5Qjm0cvM42dMSc
+
+{
+  "email": "sribabumandraju@gmail.com",
+  "subject": "Your Subject Here"
 }
 
 
@@ -53,16 +65,16 @@ Authorization: HELLO_WORLD
 ###
 GET http://localhost:8080/admin/allAdmins
 Content-Type: application/json
-Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtMmFuZHJhanVAZ21haWwuY29tIiwiTmFtZSI6InNyaWJhYjJ1IiwiQ29udGFjdCI6IjYzMHMzNzIzODg0NyIsIlBhc3N3b3JkIjoiIiwiQ29tcGFueSI6ImFtYXMyem9uIiwiVXNlcl9pZCI6IjY1YzBjNTQ0ZWYzYTFiNDAxMmM1Zjg4OSIsImV4cCI6MTcwNzMwOTY2NH0.Ut7s2Xu_GfmncJfJQagnJcJYmu3-RcKpmlmIrpNnuPE
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODE3NTg2MX0.C-CbuCQH7-nsNdht8cA7yi_5pxixV5Qjm0cvM42dMSc
 
 
 ###
 POST http://localhost:8080/admin/sendRequest
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtMmFuZHJhanVAZ21haWwuY29tIiwiTmFtZSI6InNyaWJhYjJ1IiwiQ29udGFjdCI6IjYzMHMzNzIzODg0NyIsIlBhc3N3b3JkIjoiIiwiQ29tcGFueSI6ImFtYXMyem9uIiwiVXNlcl9pZCI6IjY1YzBjNTQ0ZWYzYTFiNDAxMmM1Zjg4OSIsImV4cCI6MTcwNzMwOTY2NH0.Ut7s2Xu_GfmncJfJQagnJcJYmu3-RcKpmlmIrpNnuPE
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODIzNTkxMX0.NbiCsDuZt-KsBwliluKo9yR7-dGXRAi6qDwmEIsVOrk
 
 {
-  "name": "sribabu1",
+  "name": "madhavi hello",
   "send_by": "the processdd",
   "discription": "mdddde",
   "short_discription": "i am grddeat"
@@ -71,7 +83,7 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtMmFu
 ###
 GET  http://localhost:8080/admin/all-requests
 Content-Type: application/json
-Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtMmFuZHJhanVAZ21haWwuY29tIiwiTmFtZSI6InNyaWJhYjJ1IiwiQ29udGFjdCI6IjYzMHMzNzIzODg0NyIsIlBhc3N3b3JkIjoiIiwiQ29tcGFueSI6ImFtYXMyem9uIiwiVXNlcl9pZCI6IjY1YzBjNTQ0ZWYzYTFiNDAxMmM1Zjg4OSIsImV4cCI6MTcwNzY1MzI2NX0._bDlmihvtiJssfRwVzUb3qRoT9LpVrY4ox_q2qMu2ZA
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODIzNTkxMX0.NbiCsDuZt-KsBwliluKo9yR7-dGXRAi6qDwmEIsVOrk
 
 
 ###
@@ -100,4 +112,34 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6Im1hZGhhdmltYW5k
 GET  http://localhost:8080/admin/client/65b906c56b2a79046a9b5e35
 Content-Type: application/json
 Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6Im1hZGhhdmltYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoibWFkaGF2aSIsIkNvbnRhY3QiOiI2MzBzMzcyMzg4NDciLCJQYXNzd29yZCI6IiIsIkNvbXBhbnkiOiJ1M3RlY2giLCJVc2VyX2lkIjoiNjVjNzZiMzI2MjVmMTkyNDRhZDhlOTVjIiwiZXhwIjoxNzA3NjU0MzIyfQ.uNZcjS2a_jKhoaWYvhz_QL6iqy-9S7L4i4ijUgPSdHU
+###
+
+PUT  http://localhost:8080/admin/edit-details/65ba859bd70de89a83fa31b1
+Content-Type: application/json
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODE3NTg2MX0.C-CbuCQH7-nsNdht8cA7yi_5pxixV5Qjm0cvM42dMSc
+
+{
+  "name": "",
+  "email": "madhavi.com",
+  "contact": "1234567890",
+  "user_type":"ADMIN",
+  "password":""
+}
+
+
+### 
+GET http://localhost:8080/client/all-documents
+Content-Type: application/json
+
+###
+
+GET http://localhost:8080/admin/jobListing/getJobListingById1/65d04ddfa0cc240bda83b0cf
+Content-Type: application/json
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODI0MjQ5NX0.7Odo54rs1yuXSexvpc_nD937W3-WOlBcayau9TA6Z_I
+
+###
+
+GET http://localhost:8080/client/65c8b277786cc0862f724592
+Content-Type: application/json
+Authorization:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFbWFpbCI6InNyaWJhYnVtYW5kcmFqdUBnbWFpbC5jb20iLCJOYW1lIjoic3JpYmFidSIsIkNvbnRhY3QiOiI2MzAzNzM4ODQ3IiwiUGFzc3dvcmQiOiIiLCJDb21wYW55IjoiYW1hem9uIiwiVXNlcl9pZCI6IjY1YmUyNzVlMDljOTExZDJiMWFlZjMxNiIsImV4cCI6MTcwODU4MDgwMX0.Q9ji3jQLKYucOjINktmibJLol4IeXMe0CkGzrDT1-Kc
 

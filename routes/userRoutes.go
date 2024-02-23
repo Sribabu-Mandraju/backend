@@ -17,9 +17,14 @@ func UserRoutes(incomingRoutes *gin.Engine){
 	incomingRoutes.GET("/admin/adminByID/:id", controllers.GetAdminByID())
 	incomingRoutes.GET("/admin/client/all-clients", controllers.GetAllClients())
 	incomingRoutes.GET("/admin/client/:id",controllers.GetClientByID())
+	incomingRoutes.POST("/admin/send-email",controllers.SendEmailHandler())
+	incomingRoutes.PUT("/admin/edit-details/:id",controllers.UpdateUserDetails())
+	incomingRoutes.GET("/client/:id",controllers.FetchFileById())
 }
 
 func ClientRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.POST("/client/uploadPdf", controllers.UploadPdf())
 	incomingRoutes.POST("/client/getPdfByEmail",controllers.GetPdfDetailsByUserEmail())
+	incomingRoutes.GET("/client/all-documents",controllers.GetAllPdfDetails())
+	
 }

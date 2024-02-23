@@ -32,7 +32,7 @@ type Client struct {
 type Request_to_admin struct {
 	ID                 primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Title              *string            `json:"name" validate:"required"`
-	SendBy             *string            `json:"send_by" validate:"required"`
+	SendTo             *string            `json:"send_to" validate:"required"`
 	Discription        *string            `json:"discription" validate:"required"`
 	Short_discription  *string            `json:"short_discription" validate:"required"`
 	Sended_At          *string            `json:"sended_at" validate:"required"`
@@ -45,4 +45,10 @@ type PDFUploads struct {
 	Title     string             `json:"title" validate:"required"`
 	UserEmail string             `json:"user_email" validate:"required"`
 	PDFFile   []byte             `json:"pdf_file" validate:"required"`
+}
+
+type Email struct{
+	To      string `json:"to"`
+	Subject string `json:"subject"`
+	Body    string `json:"body"`
 }

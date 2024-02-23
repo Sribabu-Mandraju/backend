@@ -24,12 +24,12 @@ func main() {
 	client = database.DBinstance()
 	defer client.Disconnect(context.Background())
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"*"} // Add your React app's origin
+	config.AllowOrigins = []string{"*"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
 	config.AllowHeaders = []string{"Authorization", "Content-Type"}
 	router.Use(cors.New(config))
 
-	routes.ClientRoutes(router) //
+	routes.ClientRoutes(router) 
 
 	routes.AuthRoutes(router)
 	routes.ClientAuthRoutes(router)
@@ -44,31 +44,3 @@ func main() {
 	}
 	router.Run(":" + port)
 }
-
-// package main
-
-// import (
-// 	"github.com/gin-gonic/gin"
-//     "go.mongodb.org/mongo-driver/mongo"
-// 	"modfile/handlers"
-// 	"modfile/db"
-// 	"github.com/gin-contrib/cors"
-// )	
-// var client *mongo.Client
-
-
-// func main(){
-// 	db.Init()
-// 	handlers.InitCollection()
-// 	r := gin.Default()
-
-// 	// Apply CORS middleware
-// 	config := cors.DefaultConfig()
-// 	config.AllowOrigins = []string{"http://localhost:5173"} // Add your React app's origin
-// 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE"}
-// 	config.AllowHeaders = []string{"Authorization", "Content-Type"}
-// 	r.Use(cors.New(config))
-
-// 	handlers.SetupRoutes(r)
-// 	r.Run(":8080")
-// }
