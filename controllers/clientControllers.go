@@ -368,28 +368,7 @@ func GetPdfDetailsByUserEmailFromDatabase(userEmail string) ([]bson.M, error) {
     return pdfDetails, nil
 }
 
-// func GetAllPDFs() gin.HandlerFunc {
-//     return func(c *gin.Context) {
-//         ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-//         defer cancel()
 
-//         cursor, err := pdfUploadsCollection.Find(ctx, bson.M{})
-//         if err != nil {
-//             c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve PDFs"})
-//             return
-//         }
-//         defer cursor.Close(ctx)
-
-//         var pdfs []models.PDFUploads
-//         if err := cursor.All(ctx, &pdfs); err != nil {
-//             c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to decode PDFs"})
-//             return
-//         }
-
-//         // Send the PDFs as the response
-//         c.JSON(http.StatusOK, gin.H{"pdfs": pdfs})
-//     }
-// }
 
 
 func GetAllPdfDetails() gin.HandlerFunc {
@@ -427,26 +406,26 @@ func GetAllPdfDetailsFromDatabase() ([]models.PDFUploads, error) {
 	return pdfDetails,nil
 }
 func FetchFileById() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
-		defer cancel()
-	
-		requestIDParam := c.Param("id")
-		requestID, err := primitive.ObjectIDFromHex(requestIDParam)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-			return
-		}
-	
-		var request bson.M
-		err = pdfUploadsCollection.FindOne(ctx, bson.M{"_id": requestID}).Decode(&request)
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-			return
-		}
-	
-		c.JSON(http.StatusOK, request)
-	}
+    return func(c *gin.Context) {
+        ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+        defer cancel()
+
+        requestIDParam := c.Param("id")
+        requestID, err := primitive.ObjectIDFromHex(requestIDParam)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+            return
+        }
+
+        var request bson.M
+        err = pdfUploadsCollection.FindOne(ctx, bson.M{"_id": requestID}).Decode(&request)
+        if err != nil {
+            c.JSON(http.StatusNotFound, gin.H{"error": "File not found"})
+            return
+        }
+
+        c.JSON(http.StatusOK, request)
+    }
 }
 
 
